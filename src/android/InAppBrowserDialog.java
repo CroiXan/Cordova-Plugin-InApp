@@ -51,15 +51,17 @@ public class InAppBrowserDialog extends Dialog {
             // better to go through the in inAppBrowser
             // because it does a clean up
           Log.d("onBackPressed -> canGoBack",""+this.inAppBrowser.canGoBack());
-            if (this.inAppBrowser.hardwareBack() && this.inAppBrowser.canGoBack()) {
-              if( !backButtonAction() ){
-                this.inAppBrowser.goBack();
-              }
-            } else {
-              if(!backButtonAction()){
-                this.inAppBrowser.closeDialog();
-              }
+          if (this.inAppBrowser.hardwareBack() && this.inAppBrowser.canGoBack()) {
+            if(this.inAppBrowser.searchURL()){
+              backButtonAction();
+            }else{
+              this.inAppBrowser.goBack();
             }
+          } else {
+            if(!backButtonAction()){
+                this.inAppBrowser.closeDialog();
+            }
+          }
         }
     }
 
