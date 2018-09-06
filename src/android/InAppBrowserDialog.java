@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,28 +50,57 @@ public class InAppBrowserDialog extends Dialog {
         } else {
             // better to go through the in inAppBrowser
             // because it does a clean up
+          Log.d("onBackPressed -> canGoBack",""+this.inAppBrowser.canGoBack());
             if (this.inAppBrowser.hardwareBack() && this.inAppBrowser.canGoBack()) {
-                if(this.inAppBrowser.minimizeApp()){
-                    new AlertDialog.Builder(context)
-                      .setTitle(this.inAppBrowser.getDialogTittle())
-                      .setMessage(this.inAppBrowser.getDialogMessage())
-                      .setNegativeButton(this.inAppBrowser.getDialogNegative(),null)
-                      .setPositiveButton(this.inAppBrowser.getDialogPositive(), new OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialog, int which) {
-                            Intent startMain = new Intent(Intent.ACTION_MAIN);
-                            startMain.addCategory(Intent.CATEGORY_HOME);
-                            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(startMain);
-                        }
-                      }).show();
-
-                }else{
-                  this.inAppBrowser.goBack();
-                }
-            }  else {
+              if( !backButtonAction() ){
+                this.inAppBrowser.goBack();
+              }
+            } else {
+              if(!backButtonAction()){
                 this.inAppBrowser.closeDialog();
+              }
             }
         }
+    }
+
+    private boolean backButtonAction(){
+      Log.d("backButtonAction",""+this.inAppBrowser.getcloseOrMinimizeActive());
+      if(this.inAppBrowser.getcloseOrMinimizeActive() ){
+        createDialog();
+        return true;
+      }
+      return false;
+    }
+
+    private void handleCloseOrMinimize(){
+      Log.d("handleCloseOrMinimize",this.inAppBrowser.getCloseOrMinimize());
+      if( this.inAppBrowser.getCloseOrMinimize().equals("close") ){
+        int pid = android.os.Process.myPid();
+        android.os.Process.killProcess(pid);
+      }else{
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(startMain);
+      }
+    }
+
+    private void createDialog(){
+      if( this.inAppBrowser.getDialogActive() ){
+        Log.d("createDialog","True create a dialog");
+        new AlertDialog.Builder(context)
+          .setTitle(this.inAppBrowser.getDialogTittle())
+          .setMessage(this.inAppBrowser.getDialogMessage())
+          .setNegativeButton(this.inAppBrowser.getDialogNegative(),null)
+          .setPositiveButton(this.inAppBrowser.getDialogPositive(), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              handleCloseOrMinimize();
+            }
+          }).show();
+      }else{
+        Log.d("createDialog","False call handleCloseOrMinimize");
+        handleCloseOrMinimize();
+      }
     }
 }

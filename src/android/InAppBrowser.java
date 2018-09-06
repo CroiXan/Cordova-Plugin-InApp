@@ -109,12 +109,27 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String FOOTER = "footer";
     private static final String FOOTER_COLOR = "footercolor";
     private static final String PREVENT_URL_BACK = "preventurlback";
+    private static final String CLOSE_OR_MINIMIZE_ACTIVE = "closeorminimizeactive";
+    private static final String CLOSE_OR_MINIMIZE = "closeorminimize";
+    private static final String DIALOG_ACTIVE = "dialogactive";
     private static final String DIALOG_TITTLE = "dialogtittle";
     private static final String DIALOG_MESSAGE = "dialogmessage";
     private static final String DIALOG_POSITIVE = "dialogpositive";
     private static final String DIALOG_NEGATIVE = "dialognegative";
 
-    private static final List customizableOptions = Arrays.asList(CLOSE_BUTTON_CAPTION, TOOLBAR_COLOR, NAVIGATION_COLOR, CLOSE_BUTTON_COLOR, FOOTER_COLOR, PREVENT_URL_BACK, DIALOG_TITTLE, DIALOG_MESSAGE, DIALOG_POSITIVE, DIALOG_NEGATIVE);
+    private static final List customizableOptions = Arrays.asList(
+        CLOSE_BUTTON_CAPTION, 
+        TOOLBAR_COLOR, 
+        NAVIGATION_COLOR, 
+        CLOSE_BUTTON_COLOR, 
+        FOOTER_COLOR, 
+        PREVENT_URL_BACK, 
+        DIALOG_TITTLE, 
+        DIALOG_MESSAGE, 
+        DIALOG_POSITIVE, 
+        DIALOG_NEGATIVE, 
+        CLOSE_OR_MINIMIZE, 
+        DIALOG_ACTIVE);
 
     private InAppBrowserDialog dialog;
     private WebView inAppWebView;
@@ -146,6 +161,9 @@ public class InAppBrowser extends CordovaPlugin {
     private String dialogMessage = "¿Estás seguro de minimizar la aplicación?";
     private String dialogPositive = "Sí";
     private String dialogNegative = "No";
+    private boolean dialogActive = false;
+    private String closeOrMinimize = "minimize";
+    private boolean closeOrMinimizeActive = true;
     private String[] allowedSchemes;
 
     /**
@@ -513,7 +531,7 @@ public class InAppBrowser extends CordovaPlugin {
     /**
      *  Minimize App if contains the text on the URL
      */
-    public boolean minimizeApp(){
+    public boolean searchURL(){
         for(String urlFragment : this.minimizeOnURL){
             Log.i("GoBackURL",this.inAppWebView.getUrl());
             Log.i("GoBackURL",urlFragment);
@@ -587,6 +605,18 @@ public class InAppBrowser extends CordovaPlugin {
 
     public String getDialogNegative(){
         return dialogNegative;
+    }
+
+    public boolean getDialogActive(){
+        return dialogActive;
+    }
+
+    public String getCloseOrMinimize(){
+        return closeOrMinimize;
+    }
+
+    public boolean getcloseOrMinimizeActive(){
+        return closeOrMinimizeActive;
     }
 
     /**
@@ -698,6 +728,18 @@ public class InAppBrowser extends CordovaPlugin {
             String dialogNegativeSet = features.get(DIALOG_NEGATIVE);
             if (dialogNegativeSet != null) {
                 dialogNegative = dialogNegativeSet;
+            }
+            String dialogActiveSet = features.get(DIALOG_ACTIVE);
+            if (dialogActiveSet != null) {
+                dialogActive = dialogActiveSet.equals("yes") ? true : false;
+            }
+            String closeOrMinimizeSet = features.get(CLOSE_OR_MINIMIZE);
+            if (closeOrMinimizeSet != null) {
+                closeOrMinimize = closeOrMinimizeSet.equals("close") ? closeOrMinimizeSet : "minimize";
+            }
+            String closeOrMinimizeActiveSet = features.get(CLOSE_OR_MINIMIZE_ACTIVE);
+            if (closeOrMinimizeActiveSet != null) {
+                closeOrMinimizeActive = closeOrMinimizeActiveSet.equals("yes") ? true : false;
             }
         }
 
